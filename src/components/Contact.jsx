@@ -15,8 +15,8 @@ import {
 } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 
-// connecting to Backend
-const API_URL = import.meta.env.API_URL_MB;
+// connecting to Backend (Vite only exposes vars prefixed with VITE_)
+const API_URL = import.meta.env.VITE_API_URL_MB;
 const Contact = () => {
   const { isDark } = useTheme();
   const [formData, setFormData] = useState({
