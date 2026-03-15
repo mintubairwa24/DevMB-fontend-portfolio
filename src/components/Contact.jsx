@@ -16,7 +16,7 @@ import {
 import { useTheme } from "../context/ThemeContext";
 
 // connecting to Backend
-const API_URL = import.meta.env.API_URL_MB || "http://localhost:5000";
+const API_URL = import.meta.env.API_URL_MB;
 const Contact = () => {
   const { isDark } = useTheme();
   const [formData, setFormData] = useState({
