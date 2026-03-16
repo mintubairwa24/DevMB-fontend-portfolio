@@ -16,7 +16,13 @@ import {
 import { useTheme } from "../context/ThemeContext";
 
 // connecting to Backend (Vite only exposes vars prefixed with VITE_)
-const API_URL = import.meta.env.VITE_API_URL_MB;
+const API_URL =
+  import.meta.env.VITE_API_URL_MB ||
+  import.meta.env.VITE_API_URL ||
+  "";
+const CONTACT_ENDPOINT = API_URL
+  ? `${API_URL.replace(/\/+$/, "")}/api/contact`
+  : "/api/contact";
 const Contact = () => {
   const { isDark } = useTheme();
   const [formData, setFormData] = useState({
@@ -53,14 +59,21 @@ const Contact = () => {
     }
 
     setIsLoading(true);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+
     try {
-      const response = await fetch(`${API_URL}/api/contact`, {
+      const response = await fetch(CONTACT_ENDPOINT, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify(formData),
+        signal: controller.signal,
       });
 
-      const data = await response.json();
+      const contentType = response.headers.get("content-type") || "";
+      const data = contentType.includes("application/json")
+        ? await response.json()
+        : null;
 
       if (response.ok) {
         setSubmitted(true);
@@ -74,11 +87,18 @@ const Contact = () => {
         setFormErrors({});
         setTimeout(() => setSubmitted(false), 1000);
       } else {
-        setFormErrors(data.errors || { general: "Failed to send message." });
+        setFormErrors(
+          data?.errors || { general: data?.message || "Failed to send message." }
+        );
       }
     } catch (error) {
-      setFormErrors({ general: "Something went wrong. Please try again." });
+      if (error.name === "AbortError") {
+        setFormErrors({ general: "Request timed out. Please try again." });
+      } else {
+        setFormErrors({ general: "Something went wrong. Please try again." });
+      }
     } finally {
+      clearTimeout(timeoutId);
       setIsLoading(false);
     }
   };
@@ -285,11 +305,7 @@ const Contact = () => {
             <p
               className={`text-xl ${theme.text.secondary} max-w-5xl mx-auto mb-8`}
             >
-              I'm always open to learning opportunities, collaboration, and interesting project ideas.
-              <span className="text-cyan-400 font-semibold">
-                {" "}
-                I'm always open to learning opportunities, collaboration, and interesting project ideas.
-              </span>{" "}
+              I'm always open to learning opportunities, collaboration, and interesting project ideas,
               and exploring
               <span className="text-blue-400 font-semibold">
                 {" "}
@@ -373,7 +389,7 @@ const Contact = () => {
                       onChange={handleChange}
                       className={`w-full px-5 py-3 rounded-xl backdrop-blur-xl ${theme.bg.input}  hover:border-blue-400 hover:shadow-lg hover:shadow-blue-400 border-2 transition-all duration-300 focus:outline-none focus:ring-2 ${theme.border.focus} ${theme.text.primary} placeholder-slate-400 ${
                         formErrors.name
-                          ? `theme.border.error `
+                          ? `${theme.border.error}`
                           : `${theme.border.base} hover:${theme.border.hover}`
                       }`}
                       placeholder="Your name"
@@ -524,6 +540,17 @@ const Contact = () => {
                       </option>
                     </motion.select>
                   </motion.div>
+
+                  {formErrors.general && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={`flex items-center gap-2 mt-2 ${theme.text.error} text-sm`}
+                    >
+                      <AlertCircle className="w-4 h-4" />
+                      {formErrors.general}
+                    </motion.div>
+                  )}
 
                   {/* Submit Button */}
                   <motion.button
