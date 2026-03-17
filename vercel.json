@@ -1,5 +1,9 @@
 {
   "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://devmb-backend-portfolio.onrender.com/api/$1"
+    },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
