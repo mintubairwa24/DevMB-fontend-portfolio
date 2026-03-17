@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Mail,
@@ -20,9 +20,9 @@ const API_URL =
   import.meta.env.VITE_API_URL_MB ||
   import.meta.env.VITE_API_URL ||
   "";
-const CONTACT_ENDPOINT = API_URL
-  ? `${API_URL.replace(/\/+$/, "")}/api/contact`
-  : "/api/contact";
+const API_BASE = API_URL ? API_URL.replace(/\/+$/, "") : "";
+const CONTACT_ENDPOINT = API_BASE ? `${API_BASE}/api/contact` : "/api/contact";
+const HEALTH_ENDPOINT = API_BASE ? `${API_BASE}/api/health` : "/api/health";
 const Contact = () => {
   const { isDark } = useTheme();
   const [formData, setFormData] = useState({
@@ -36,6 +36,11 @@ const Contact = () => {
   const [formErrors, setFormErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Warm up backend (Render cold start)
+  useEffect(() => {
+    fetch(HEALTH_ENDPOINT).catch(() => {});
+  }, []);
 
    // Form validation
   const validateForm = () => {
@@ -60,7 +65,7 @@ const Contact = () => {
 
     setIsLoading(true);
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000);
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
 
     try {
       const response = await fetch(CONTACT_ENDPOINT, {
@@ -93,7 +98,10 @@ const Contact = () => {
       }
     } catch (error) {
       if (error.name === "AbortError") {
-        setFormErrors({ general: "Request timed out. Please try again." });
+        setFormErrors({
+          general:
+            "The server is waking up. Please try again in a few seconds.",
+        });
       } else {
         setFormErrors({ general: "Something went wrong. Please try again." });
       }
