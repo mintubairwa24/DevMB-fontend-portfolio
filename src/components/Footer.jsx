@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import {
   Github,
   Linkedin,
@@ -12,6 +13,7 @@ import LogoBadge from "./LogoBadge";
 
 const Footer = () => {
   const { isDark } = useTheme();
+  const MotionLink = motion(Link);
   // Theme configuration (same system as About & Contact pages)
   const theme = {
     bg: {
@@ -203,9 +205,9 @@ const Footer = () => {
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-2 gap-y-2 gap-x-4">
               {navigationLinks.map((link, idx) => (
-                <motion.a
+                <MotionLink
                   key={idx}
-                  href={link.href}
+                  to={link.href}
                   whileHover={{ x: 4 }}
                   className="group flex font-semibold justify-center md:justify-start items-center gap-2 relative"
                 >
@@ -237,7 +239,7 @@ const Footer = () => {
                     transition={{ duration: 0.3 }}
                     className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-400 origin-left"
                   />
-                </motion.a>
+                </MotionLink>
               ))}
             </div>
           </motion.div>
