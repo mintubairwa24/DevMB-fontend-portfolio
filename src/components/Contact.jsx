@@ -15,12 +15,16 @@ import {
 } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 
-// connecting to Backend (Vite only exposes vars prefixed with VITE_)
+// Use a direct backend URL for local development, but rely on Vercel rewrites in production.
 const API_URL =
   import.meta.env.VITE_API_URL_MB ||
   import.meta.env.VITE_API_URL ||
   "";
-const API_BASE = API_URL ? API_URL.replace(/\/+$/, "") : "";
+const isBrowser = typeof window !== "undefined";
+const isLocalHost =
+  isBrowser &&
+  ["localhost", "127.0.0.1"].includes(window.location.hostname);
+const API_BASE = isLocalHost && API_URL ? API_URL.replace(/\/+$/, "") : "";
 const CONTACT_ENDPOINT = API_BASE ? `${API_BASE}/api/contact` : "/api/contact";
 const HEALTH_ENDPOINT = API_BASE ? `${API_BASE}/api/health` : "/api/health";
 const Contact = () => {
