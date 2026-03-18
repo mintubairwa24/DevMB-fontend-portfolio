@@ -15,16 +15,12 @@ import {
 } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 
-// Use a direct backend URL for local development, but rely on Vercel rewrites in production.
+// Prefer an explicit backend URL when provided; otherwise fall back to same-origin rewrites.
 const API_URL =
   import.meta.env.VITE_API_URL_MB ||
   import.meta.env.VITE_API_URL ||
   "";
-const isBrowser = typeof window !== "undefined";
-const isLocalHost =
-  isBrowser &&
-  ["localhost", "127.0.0.1"].includes(window.location.hostname);
-const API_BASE = isLocalHost && API_URL ? API_URL.replace(/\/+$/, "") : "";
+const API_BASE = API_URL.trim().replace(/\/+$/, "");
 const CONTACT_ENDPOINT = API_BASE ? `${API_BASE}/api/contact` : "/api/contact";
 const HEALTH_ENDPOINT = API_BASE ? `${API_BASE}/api/health` : "/api/health";
 const Contact = () => {
@@ -50,11 +46,17 @@ const Contact = () => {
   const validateForm = () => {
     const errors = {};
     if (!formData.name.trim()) errors.name = "Name is required";
+    else if (formData.name.trim().length < 2) {
+      errors.name = "Name must be at least 2 characters";
+    }
     if (!formData.email.trim()) errors.email = "Email is required";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       errors.email = "Invalid email format";
     }
     if (!formData.message.trim()) errors.message = "Message is required";
+    else if (formData.message.trim().length < 10) {
+      errors.message = "Message must be at least 10 characters";
+    }
     return errors;
   };
 
@@ -107,7 +109,10 @@ const Contact = () => {
             "The server is waking up. Please try again in a few seconds.",
         });
       } else {
-        setFormErrors({ general: "Something went wrong. Please try again." });
+        setFormErrors({
+          general:
+            "Couldn't reach the server. Check your deployed API URL and backend CORS settings.",
+        });
       }
     } finally {
       clearTimeout(timeoutId);
