@@ -13,7 +13,7 @@ import LogoBadge from "./LogoBadge";
 
 const Footer = () => {
   const { isDark } = useTheme();
-  const MotionLink = motion(Link);
+  const MotionLink = motion.create(Link);
   // Theme configuration (same system as About & Contact pages)
   const theme = {
     bg: {

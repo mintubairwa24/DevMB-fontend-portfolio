@@ -533,14 +533,18 @@ const HeroPage = () => {
           {/* Featured Projects Preview */}
           <section className="relative py-20 px-4 mb-12">
             <div className="max-w-6xl mx-auto w-full">
-              <h2
-                className={`text-4xl font-black text-center mb-12 ${isDark ? "text-white" : "text-slate-900"}`}
-              >
-                Featured Projects
-                <h3>
-                  "Something Awesome is Coming Soon......"
-                </h3>
-              </h2>
+              <div className="text-center mb-12">
+                <h2
+                  className={`text-4xl font-black ${isDark ? "text-white" : "text-slate-900"}`}
+                >
+                  Featured Projects
+                </h2>
+                <p
+                  className={`mt-3 text-lg ${isDark ? "text-slate-300" : "text-slate-600"}`}
+                >
+                  Something awesome is coming soon...
+                </p>
+              </div>
 
 
               {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
